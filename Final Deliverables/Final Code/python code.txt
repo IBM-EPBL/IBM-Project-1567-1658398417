@@ -1,0 +1,34 @@
+#IBM Watson IOT Platform
+#pip install wiotp-sdk
+import wiotp.sdk.device
+import time
+import random
+myConfig = { 
+    "identity": {
+        "orgId": "q26y5w",
+        "typeId": "TestDeviceType",
+        "deviceId":"2022"
+    },
+    "auth": {
+        "token": "uu(rZQw9292EfSFGDX"
+    }
+}
+
+def myCommandCallback(cmd):
+    print("Message received from IBM IoT Platform: %s" % cmd.data['command'])
+    m=cmd.data['command']
+
+client = wiotp.sdk.device.DeviceClient(config=myConfig, logHandlers=None)
+client.connect()
+
+while True:
+    temp=random.randint(0,125)
+    hum=random.randint(0,100)
+    haz=random.randint(0,100)
+    pre=random.randint(0,100)
+    myData={'temperature':temp, 'humidity':hum, 'Hazardousgas':haz, 'pressure':pre}
+    client.publishEvent(eventId="status", msgFormat="json", data=myData, qos=0, onPublish=None)
+    print("Published data Successfully: %s", myData)
+    client.commandCallback = myCommandCallback
+    time.sleep(2)
+client.disconnect()
